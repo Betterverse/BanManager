@@ -111,13 +111,13 @@ public class BanManager extends JavaPlugin implements Listener {
         if(cmd.getName().equalsIgnoreCase("ban")){
             if (args.length > 1){
             try{
+                String name = searchPlayer(args[0]);
                 PreparedStatement stmt = conn.prepareStatement("SELECT username FROM bans WHERE `username`=? AND `closed`=?");
-                stmt.setString(1, searchPlayer(args[0]));
+                stmt.setString(1, name);
                 stmt.setBoolean(2, false);
                 Statement st = conn.createStatement();
                 ResultSet rs = stmt.executeQuery();
-                Player target = Bukkit.getServer().getPlayer(searchPlayer(args[0]));
-                String name;
+                Player target = Bukkit.getServer().getPlayer(name);
                 if(rs.next()){
                     sender.sendMessage("User is already banned!");
                 }else{
@@ -128,16 +128,16 @@ public class BanManager extends JavaPlugin implements Listener {
                     }
                     String insertStatement = "Insert into bans (username,reason,banned_by) values (?,?,?)";
                     PreparedStatement prepStmt = conn.prepareStatement(insertStatement);
-                    prepStmt.setString(1, searchPlayer(args[0]));
+                    prepStmt.setString(1, name);
                     prepStmt.setString(2, reason);
                     prepStmt.setString(3, sender.getName());
                     prepStmt.executeUpdate();
                     if(target != null){
                         if(target.isOnline()){
-                            Bukkit.getServer().getPlayer(searchPlayer(args[0])).kickPlayer("You have been banned! " + reason);
+                            Bukkit.getServer().getPlayer(name).kickPlayer("You have been banned! " + reason);
                          }
                     }
-                    sender.sendMessage("Banned user "+ searchPlayer(args[0]));
+                    sender.sendMessage("Banned user "+ name);
 
                 }
                 st.close();
@@ -152,19 +152,20 @@ public class BanManager extends JavaPlugin implements Listener {
         else if(cmd.getName().equalsIgnoreCase("unban")){
             if (args.length == 1){
             try{
+                String name = searchPlayer(args[0]);
                 PreparedStatement stmt = conn.prepareStatement("SELECT id FROM bans WHERE `username`=? AND `closed`=?");
-                stmt.setString(1, searchPlayer(searchPlayer(args[0])));
+                stmt.setString(1, name);
                 stmt.setBoolean(2, false);
                 Statement st = conn.createStatement();
                 ResultSet rs = stmt.executeQuery();
-                Player target = (Bukkit.getServer().getPlayer(searchPlayer(args[0])));
+                Player target = (Bukkit.getServer().getPlayer(name));
                 if(rs.next()){
                     PreparedStatement prepStmt = conn.prepareStatement("DELETE FROM bans WHERE `id`=?");
                     prepStmt.setString(1, rs.getString("id"));
                     prepStmt.executeUpdate();
-                    sender.sendMessage("Unbanned user "+searchPlayer(args[0]));
+                    sender.sendMessage("Unbanned user "+name);
                 }else{
-                    sender.sendMessage("User "+searchPlayer(args[0])+ " is not banned!");
+                    sender.sendMessage("User "+name+ " is not banned!");
                 }
                 
 
