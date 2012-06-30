@@ -27,7 +27,7 @@ public class BanManager extends JavaPlugin implements Listener {
     }
 
     public static void log(Level level, String message) {
-        log.log(level, String.format("[MinecraftStats] %s", message));
+        log.log(level, String.format("[BanManager] %s", message));
     }
 
 
@@ -42,17 +42,19 @@ public class BanManager extends JavaPlugin implements Listener {
     }
     @Override
     public void onEnable() {
+        this.saveDefaultConfig();
         log("v" + getDescription().getVersion() + " enabled.");
         getServer().getPluginManager().registerEvents(this, this);
         try {
-            conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/testsql", "test", "test");
+            conn = DriverManager.getConnection("jdbc:mysql://"+ this.getConfig().getString("host") + ":"+ this.getConfig().getString("port") +"/"+this.getConfig().getString("database"), this.getConfig().getString("username"), this.getConfig().getString("password"));
         } catch (SQLException ex) {
-            Logger.getLogger(BanManager.class.getName()).log(Level.SEVERE, null, ex);
+            log("Please check your configuration!");
         }
     }
     @EventHandler
     public void onPrePlayerLogin(PlayerPreLoginEvent event) { 
         try{
+                
                 PreparedStatement stmt = conn.prepareStatement("SELECT username FROM bans WHERE `username`=? AND `closed`=?");
                 stmt.setString(1, event.getName());
                 stmt.setBoolean(2, false);
