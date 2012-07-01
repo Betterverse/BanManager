@@ -138,8 +138,8 @@ public class BanManager extends JavaPlugin implements Listener {
                     sender.sendMessage("User is already banned!");
                 } else {
                     String reason = "";
-                    for (int i = 0; i < args.length - 1; i++) {
-                        reason = reason + " " + args[i + 1];
+                    for (int i = 1; i < args.length; i++) {
+                        reason = reason + " " + args[i];
                     }
                     banUser(name, reason, sender.getName());
                     if (target != null) {
